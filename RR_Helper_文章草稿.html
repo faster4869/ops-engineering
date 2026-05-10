@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>我如何用一個瀏覽器插件，讓 56 位客服專員每天少犯錯</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;700&family=Noto+Sans+TC:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  :root {
+    --ink: #1a1a1a;
+    --ink-light: #555;
+    --ink-muted: #888;
+    --accent: #c0392b;
+    --accent-light: #fdf2f1;
+    --rule: #e8e8e8;
+    --bg: #fafaf8;
+    --card: #ffffff;
+    --code-bg: #f4f4f2;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ink: #f0f0ee;
+      --ink-light: #b8b8b2;
+      --ink-muted: #777;
+      --accent: #e05a4a;
+      --accent-light: #2a1a19;
+      --rule: #2e2e2e;
+      --bg: #141414;
+      --card: #1e1e1e;
+      --code-bg: #1a1a1a;
+    }
+
+    .lessons {
+      background: #111111;
+      border: 1px solid #2e2e2e;
+    }
+
+    .lessons h2 { color: #f0f0ee; border-bottom-color: #333333; }
+    .lesson-text strong { color: #ffffff; }
+    .lesson-text p { color: rgba(255,255,255,0.6); }
+    .lessons > p { color: rgba(255,255,255,0.65); }
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Noto Sans TC', sans-serif;
+    font-weight: 300;
+    line-height: 1.9;
+    font-size: 17px;
+  }
+
+  /* Header */
+  .hero {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 80px 32px 60px;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .tag {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    padding: 3px 10px;
+    margin-bottom: 28px;
+  }
+
+  h1 {
+    font-family: 'Noto Serif TC', serif;
+    font-size: clamp(26px, 4vw, 38px);
+    font-weight: 700;
+    line-height: 1.4;
+    color: var(--ink);
+    margin-bottom: 20px;
+  }
+
+  .subtitle {
+    font-size: 17px;
+    color: var(--ink-light);
+    line-height: 1.7;
+    margin-bottom: 36px;
+  }
+
+  .meta {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-size: 13px;
+    color: var(--ink-muted);
+  }
+
+  .meta-dot { color: var(--rule); }
+
+  /* Article body */
+  article {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 56px 32px 100px;
+  }
+
+  h2 {
+    font-family: 'Noto Serif TC', serif;
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--ink);
+    margin: 56px 0 20px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--ink);
+  }
+
+  h3 {
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--ink);
+    margin: 32px 0 12px;
+    letter-spacing: 0.02em;
+  }
+
+  p {
+    margin-bottom: 24px;
+    color: var(--ink-light);
+  }
+
+  strong {
+    color: var(--ink);
+    font-weight: 500;
+  }
+
+  /* Pull quote */
+  .pullquote {
+    margin: 48px 0;
+    padding: 28px 36px;
+    border-left: 4px solid var(--accent);
+    background: var(--accent-light);
+  }
+
+  .pullquote p {
+    font-family: 'Noto Serif TC', serif;
+    font-size: 19px;
+    line-height: 1.7;
+    color: var(--ink);
+    margin: 0;
+    font-weight: 600;
+  }
+
+  /* Stat cards */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin: 40px 0;
+  }
+
+  .stat {
+    background: var(--card);
+    border: 1px solid var(--rule);
+    padding: 24px 20px;
+    text-align: center;
+  }
+
+  .stat-number {
+    font-family: 'Noto Serif TC', serif;
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--accent);
+    display: block;
+    margin-bottom: 6px;
+  }
+
+  .stat-label {
+    font-size: 12px;
+    color: var(--ink-muted);
+    letter-spacing: 0.05em;
+    line-height: 1.5;
+  }
+
+  /* Timeline */
+  .timeline {
+    margin: 40px 0;
+    position: relative;
+  }
+
+  .timeline-item {
+    display: flex;
+    gap: 24px;
+    margin-bottom: 32px;
+    position: relative;
+  }
+
+  .timeline-left {
+    flex-shrink: 0;
+    width: 80px;
+    text-align: right;
+  }
+
+  .timeline-phase {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--accent);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding-top: 3px;
+  }
+
+  .timeline-line {
+    flex-shrink: 0;
+    width: 1px;
+    background: var(--rule);
+    position: relative;
+  }
+
+  .timeline-dot {
+    width: 8px;
+    height: 8px;
+    background: var(--accent);
+    border-radius: 50%;
+    position: absolute;
+    top: 6px;
+    left: -3.5px;
+  }
+
+  .timeline-content {
+    flex: 1;
+    padding-bottom: 8px;
+  }
+
+  .timeline-content h3 {
+    margin-top: 0;
+    margin-bottom: 8px;
+  }
+
+  .timeline-content p {
+    margin-bottom: 0;
+    font-size: 15px;
+  }
+
+  /* Challenge blocks */
+  .challenge {
+    background: var(--card);
+    border: 1px solid var(--rule);
+    padding: 28px 32px;
+    margin: 24px 0;
+    position: relative;
+  }
+
+  .challenge-num {
+    position: absolute;
+    top: -1px;
+    left: -1px;
+    background: var(--accent);
+    color: white;
+    font-size: 11px;
+    font-weight: 500;
+    padding: 4px 10px;
+    letter-spacing: 0.1em;
+  }
+
+  .challenge h3 {
+    margin-top: 20px;
+    margin-bottom: 10px;
+    font-size: 15px;
+  }
+
+  .challenge p {
+    margin-bottom: 0;
+    font-size: 15px;
+  }
+
+  /* Code block */
+  .code-block {
+    background: var(--code-bg);
+    border: 1px solid var(--rule);
+    border-left: 3px solid var(--accent);
+    padding: 20px 24px;
+    margin: 24px 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--ink);
+    line-height: 1.7;
+    overflow-x: auto;
+  }
+
+  .code-comment { color: var(--ink-muted); }
+  .code-key { color: #c0392b; }
+
+  /* Lesson box */
+  .lessons {
+    background: #1a1a1a;
+    color: white;
+    padding: 40px 40px;
+    margin: 56px 0;
+  }
+
+  .lessons h2 {
+    font-family: 'Noto Serif TC', serif;
+    color: white;
+    border-bottom-color: rgba(255,255,255,0.2);
+    margin-top: 0;
+  }
+
+  .lessons p { color: rgba(255,255,255,0.75); }
+
+  .lesson-item {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 28px;
+    align-items: flex-start;
+  }
+
+  .lesson-num {
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    background: var(--accent);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 500;
+    margin-top: 2px;
+  }
+
+  .lesson-text {
+    flex: 1;
+  }
+
+  .lesson-text strong {
+    color: white;
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  .lesson-text p {
+    color: rgba(255,255,255,0.65);
+    font-size: 15px;
+    margin: 0;
+  }
+
+  /* Footer */
+  .article-footer {
+    border-top: 1px solid var(--rule);
+    padding-top: 40px;
+    margin-top: 60px;
+  }
+
+  .article-footer p {
+    font-size: 14px;
+    color: var(--ink-muted);
+  }
+
+  /* Divider */
+  .divider {
+    text-align: center;
+    margin: 48px 0;
+    color: var(--ink-muted);
+    letter-spacing: 0.3em;
+    font-size: 13px;
+  }
+
+  @media (max-width: 600px) {
+    .stats { grid-template-columns: 1fr 1fr; }
+    .hero, article { padding-left: 20px; padding-right: 20px; }
+    .lessons { padding: 28px 24px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="tag">工具開發 · 客服營運</div>
+  <h1>我如何用一個瀏覽器插件，讓 56 位客服專員每天少犯錯</h1>
+  <p class="subtitle">
+    從一個書籤工具開始，歷經 14 個月、45 個版本的迭代，RR Helper 是一個在大公司資源限制下，用最小成本解決前線真實痛點的故事。
+  </p>
+  <div class="meta">
+    <span>Chris Chou</span>
+    <span class="meta-dot">·</span>
+    <span>客服營運流程專員 @ Shopee Taiwan</span>
+    <span class="meta-dot">·</span>
+    <span>約 10 分鐘閱讀</span>
+  </div>
+</div>
+
+<article>
+
+  <h2>問題的起點</h2>
+
+  <p>
+    在電商客服的工作裡，有一類案件特別容易出錯：<strong>不常出現、但處理規則複雜</strong>的邊緣案例。
+  </p>
+
+  <p>
+    專員每天處理大量案件，對常見流程很熟悉，但偶爾出現的特殊案件——例如跨境物流的特殊退款規則、分期付款訂單的不同處理邏輯、特定賣家需要額外確認的步驟——因為頻率低，很容易在腦子裡慢慢淡化。等到真的碰到，就可能做出錯誤的判斷。
+  </p>
+
+  <p>
+    除了記憶問題，還有兩個明顯的效率瓶頸：
+  </p>
+
+  <p>
+    第一，<strong>系統查詢繁瑣</strong>。有些資訊分散在不同系統，專員需要打開好幾個頁面、手動計算，才能得出一個本來應該自動顯示的答案。第二，<strong>填單重複操作</strong>。填寫表單時需要從案件系統複製資訊，一個欄位一個欄位切換，每天重複幾十次，耗時又容易出錯。
+  </p>
+
+  <div class="pullquote">
+    <p>這些問題不夠大，大到公司系統部門願意排進開發排程。但對前線的人來說，每天都在摩擦。</p>
+  </div>
+
+  <p>
+    在 Shopee 這樣的大公司，提出系統優化需求走正常流程，如果效益無法量化到一定規模，通常很難排進開發優先級。這是現實，不是抱怨。
+  </p>
+
+  <p>所以我決定自己解決。</p>
+
+  <div class="divider">· · ·</div>
+
+  <h2>第一個版本：書籤工具（Bookmarklet）</h2>
+
+  <p>
+    最初的解法很土，但有效。我把每一個小工具做成 <strong>Bookmarklet</strong>——把 JavaScript 塞進瀏覽器書籤，點一下就執行。
+  </p>
+
+  <p>
+    想要自動計算某個欄位？寫一段 JS，存成書籤，通知同事點一下。想要自動填表？同樣的方式。幾個禮拜內，書籤列多了七八個工具，每個解決一個痛點。
+  </p>
+
+  <p>但 Bookmarklet 有一個致命問題：<strong>無法統一管理版本。</strong></p>
+
+  <p>
+    每次規則改了、流程更新了，我需要把新的書籤連結通知所有人，請他們手動替換。有些人更新了，有些人忘了，有些人手上可能一直跑著半年前的舊版。版本分歧的結果，就是同樣的案件，不同的人用不同的邏輯在處理。
+  </p>
+
+  <p>這比沒有工具還要危險。</p>
+
+  <div class="divider">· · ·</div>
+
+  <h2>決定做成 Chrome Extension</h2>
+
+  <p>Bookmarklet 的問題讓我開始認真思考一個更系統性的解法。Chrome Extension 有幾個關鍵優勢：</p>
+
+  <p><strong>版本集中管理。</strong> 我更新一次，所有安裝的人自動拿到新版，不需要任何人工操作。</p>
+
+  <p><strong>可以串接 Firebase 做即時內容更新。</strong> 某些提醒內容（例如特殊賣家名單）需要頻繁異動，透過 Firebase 可以不用每次發新版就能更新資料。</p>
+
+  <p><strong>可以在背景執行邏輯。</strong> 不只是點了才跑，可以在專員打開案件的瞬間自動判斷，彈出對應的提醒。</p>
+
+  <p>決定做，但我從來沒寫過 Chrome Extension。</p>
+
+  <div class="stats">
+    <div class="stat">
+      <span class="stat-number">45</span>
+      <span class="stat-label">發布版本數<br>V1.0 → V26.04.25</span>
+    </div>
+    <div class="stat">
+      <span class="stat-number">56+</span>
+      <span class="stat-label">服務專員人數<br>跨 7 種業務組別</span>
+    </div>
+    <div class="stat">
+      <span class="stat-number">14</span>
+      <span class="stat-label">個月持續維護<br>每月平均 3 個版本</span>
+    </div>
+  </div>
+
+  <div class="divider">· · ·</div>
+
+  <h2>開發過程中的三個硬骨頭</h2>
+
+  <div class="challenge">
+    <div class="challenge-num">挑戰 01</div>
+    <h3>從零開始學 Extension 開發，以及送審的漫長試錯</h3>
+    <p>
+      Chrome Extension 有一套自己的架構概念：Content Script、Background Service Worker、Manifest 設定……這些跟一般網頁開發不同。我花了不少時間在文件和 Stack Overflow 之間來回，更花了意外多的時間在 Chrome Web Store 的送審流程上——格式不對、描述不符規定、權限申請方式有問題，退件了幾次才順利上架。
+    </p>
+  </div>
+
+  <div class="challenge">
+    <div class="challenge-num">挑戰 02</div>
+    <h3>跨域查詢：在 A 網站取得 B 網站的資料</h3>
+    <p>
+      RR Helper 需要在案件管理系統（DMS）的畫面上，即時查詢其他內部系統的資料。但瀏覽器的安全機制不允許在一個網域的頁面直接存取另一個網域的 API，這就是所謂的 CORS 限制。
+    </p>
+    <p style="margin-top: 12px;">
+      解法是利用 <strong>Background Service Worker</strong> 作為中間層。Content Script 把請求丟給 Background，由 Background 去向其他系統取資料，再把結果回傳給前端顯示。這個架構讓跨域查詢成為可能，也讓後來加入的多個查詢功能有了統一的架構基礎。
+    </p>
+  </div>
+
+  <div class="code-block">
+<span class="code-comment">// Content Script → Background → 外部 API → 回傳結果</span>
+
+<span class="code-key">chrome.runtime.sendMessage</span>({
+  action: <span class="code-key">'fetchData'</span>,
+  url: targetApiUrl,
+  params: queryParams
+}, (response) => {
+  <span class="code-comment">// 拿到資料後在 DMS 畫面上顯示</span>
+  renderResult(response.data);
+});
+  </div>
+
+  <div class="challenge">
+    <div class="challenge-num">挑戰 03</div>
+    <h3>前端 UI：我不擅長，但我知道它很重要</h3>
+    <p>
+      我的背景偏向後端邏輯和數據，前端排版是弱項。但我很清楚一件事：<strong>介面醜、操作不直覺，就沒有人願意用。</strong> 工具做得再好，使用率是零，等於沒做。
+    </p>
+    <p style="margin-top: 12px;">
+      所以我在 UI 上投入了比預期更多的時間——彈窗的位置、資訊的層次、提醒的視覺權重、不同功能的入口安排。每一個細節都在想：<em>專員在壓力下操作案件，這個介面會不會讓他更快找到他需要的東西？</em>
+    </p>
+  </div>
+
+  <div class="divider">· · ·</div>
+
+  <h2>從 V1.0 到現在：迭代的節奏</h2>
+
+  <div class="timeline">
+
+    <div class="timeline-item">
+      <div class="timeline-left">
+        <div class="timeline-phase">2025.02</div>
+      </div>
+      <div class="timeline-line"><div class="timeline-dot"></div></div>
+      <div class="timeline-content">
+        <h3>V1.0 上線：三項基本提醒</h3>
+        <p>最初版本只有日常提醒、新功能通知，以及組別自動判斷。功能少，但建立了核心架構。</p>
+      </div>
+    </div>
+
+    <div class="timeline-item">
+      <div class="timeline-left">
+        <div class="timeline-phase">2025.04–06</div>
+      </div>
+      <div class="timeline-line"><div class="timeline-dot"></div></div>
+      <div class="timeline-content">
+        <h3>快速擴張期：功能從 3 項增至 15+ 項</h3>
+        <p>加入 Remark 彙整工具、退貨商品比對、表單欄位複製工具、圖片標記工具，以及各組別的特殊提醒邏輯。也在這個階段遇到第一次線上事故：V25.05.09 因為測試不夠充分，Remark 工具出現變數設定錯誤無法正確執行，我在發現問題後立即在 V25.05.11 退回前一個穩定版本，隔天修好後重新發布。<strong>快速退版比硬撐一個壞掉的版本好</strong>，這是那次學到最重要的事。</p>
+      </div>
+    </div>
+
+    <div class="timeline-item">
+      <div class="timeline-left">
+        <div class="timeline-phase">2025.10–12</div>
+      </div>
+      <div class="timeline-line"><div class="timeline-dot"></div></div>
+      <div class="timeline-content">
+        <h3>架構成熟期：跨域查詢與即時功能</h3>
+        <p>加入 Re-inbound 狀態查詢、環保無包裝 TN 清單、3PL Compensation 灰度提醒。這個階段的功能開始需要跨域查詢架構的支撐，也是技術複雜度最高的一段時間。</p>
+      </div>
+    </div>
+
+    <div class="timeline-item">
+      <div class="timeline-left">
+        <div class="timeline-phase">2026.01–04</div>
+      </div>
+      <div class="timeline-line"><div class="timeline-dot"></div></div>
+      <div class="timeline-content">
+        <h3>持續優化與跨地區擴展</h3>
+        <p>加入動態通知功能、Buybox 商品偵測、Queue Case Export，並為 PH BPO 開發專屬功能權限，讓工具從台灣本地延伸到跨國支援。</p>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="divider">· · ·</div>
+
+  <div class="lessons">
+    <h2>三件這個過程教會我的事</h2>
+
+    <div class="lesson-item">
+      <div class="lesson-num">1</div>
+      <div class="lesson-text">
+        <strong>工具的生命力來自解決真實的問題，不是技術的精緻程度</strong>
+        <p>RR Helper 不是技術上最複雜的東西，但它解決了專員每天真實遇到的摩擦。這讓它在 14 個月後還在被使用，還在持續收到需求，而不是做完就被遺忘。</p>
+      </div>
+    </div>
+
+    <div class="lesson-item">
+      <div class="lesson-num">2</div>
+      <div class="lesson-text">
+        <strong>需求管理和版本記錄，是工具能長期維護的基礎</strong>
+        <p>一開始就建立需求表流程和 Changelog 習慣，讓 45 個版本的迭代有跡可循。任何人想知道某個功能什麼時候加進來、為什麼加，都找得到答案。這不是多餘的，是工具能活下去的原因之一。</p>
+      </div>
+    </div>
+
+    <div class="lesson-item">
+      <div class="lesson-num">3</div>
+      <div class="lesson-text">
+        <strong>在大公司裡，最快的改變路徑往往是繞過審批，先做出來</strong>
+        <p>等待系統部門排進開發，可能要等一年。用瀏覽器插件在兩週內解決，然後讓數字說話。這不是在批評組織流程，而是在選擇對使用者最有效率的路徑。</p>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <p>
+      如果你也在大公司的前線，有類似「系統不支援但又很需要」的痛點，歡迎留言討論。有時候最好的解法不在 roadmap 裡，在你自己的書籤列。
+    </p>
+  </div>
+
+</article>
+
+</body>
+</html>

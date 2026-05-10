@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>從 VBA 到全天候自動化系統：一個營運專員的 Python 自學路徑</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;700&family=Noto+Sans+TC:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  :root {
+    --ink: #1a1a1a;
+    --ink-light: #555;
+    --ink-muted: #888;
+    --accent: #c0392b;
+    --accent-mid: #c0392b;
+    --accent-light: #fdf2f1;
+    --rule: #e8e8e8;
+    --bg: #fafaf8;
+    --card: #ffffff;
+    --code-bg: #f4f4f2;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ink: #f0f0ee;
+      --ink-light: #b8b8b2;
+      --ink-muted: #777;
+      --accent: #e05a4a;
+      --accent-mid: #e05a4a;
+      --accent-light: #2a1a19;
+      --rule: #2e2e2e;
+      --bg: #141414;
+      --card: #1e1e1e;
+      --code-bg: #1a1a1a;
+    }
+
+    .lessons { background: #111111; border: 1px solid #2e2e2e; }
+    .lessons h2 { color: #f0f0ee; border-bottom-color: #333333; }
+    .lesson-text strong { color: #ffffff; }
+    .lesson-text p { color: rgba(255,255,255,0.6); }
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Noto Sans TC', sans-serif;
+    font-weight: 300;
+    line-height: 1.9;
+    font-size: 17px;
+  }
+
+  .hero {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 80px 32px 60px;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .tag {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent-mid);
+    border: 1px solid var(--accent-mid);
+    padding: 3px 10px;
+    margin-bottom: 28px;
+  }
+
+  h1 {
+    font-family: 'Noto Serif TC', serif;
+    font-size: clamp(24px, 4vw, 36px);
+    font-weight: 700;
+    line-height: 1.4;
+    color: var(--ink);
+    margin-bottom: 20px;
+  }
+
+  .subtitle {
+    font-size: 17px;
+    color: var(--ink-light);
+    line-height: 1.7;
+    margin-bottom: 36px;
+  }
+
+  .meta {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-size: 13px;
+    color: var(--ink-muted);
+    flex-wrap: wrap;
+  }
+
+  .meta-dot { color: var(--rule); }
+
+  article {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 56px 32px 100px;
+  }
+
+  h2 {
+    font-family: 'Noto Serif TC', serif;
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--ink);
+    margin: 56px 0 20px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--accent);
+  }
+
+  h3 {
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--ink);
+    margin: 32px 0 12px;
+  }
+
+  p { margin-bottom: 24px; color: var(--ink-light); }
+  strong { color: var(--ink); font-weight: 500; }
+  em { color: var(--ink-muted); font-style: italic; }
+
+  .pullquote {
+    margin: 48px 0;
+    padding: 28px 36px;
+    border-left: 4px solid var(--accent-mid);
+    background: var(--accent-light);
+  }
+
+  .pullquote p {
+    font-family: 'Noto Serif TC', serif;
+    font-size: 19px;
+    line-height: 1.7;
+    color: var(--ink);
+    margin: 0;
+    font-weight: 600;
+  }
+
+  /* Evolution steps */
+  .evolution {
+    margin: 40px 0;
+  }
+
+  .evo-item {
+    display: grid;
+    grid-template-columns: 48px 1fr;
+    gap: 0 20px;
+    margin-bottom: 0;
+    position: relative;
+  }
+
+  .evo-left {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .evo-badge {
+    width: 40px;
+    height: 40px;
+    background: var(--accent);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 500;
+    font-family: 'JetBrains Mono', monospace;
+    flex-shrink: 0;
+    z-index: 1;
+  }
+
+  .evo-line {
+    width: 2px;
+    flex: 1;
+    background: var(--rule);
+    margin-top: 4px;
+    min-height: 24px;
+  }
+
+  .evo-item:last-child .evo-line { display: none; }
+
+  .evo-content {
+    padding-bottom: 36px;
+  }
+
+  .evo-tool {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent-mid);
+    margin-bottom: 6px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .evo-content h3 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-size: 16px;
+  }
+
+  .evo-content p {
+    margin-bottom: 0;
+    font-size: 15px;
+  }
+
+  /* Code block */
+  .code-block {
+    background: var(--code-bg);
+    border: 1px solid var(--rule);
+    border-left: 3px solid var(--accent-mid);
+    padding: 20px 24px;
+    margin: 20px 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--ink);
+    line-height: 1.8;
+    overflow-x: auto;
+  }
+
+  .code-comment { color: var(--ink-muted); }
+  .code-key { color: var(--accent-mid); font-weight: 500; }
+  .code-str { color: #27ae60; }
+
+  /* Analogy box */
+  .analogy {
+    background: var(--card);
+    border: 1px solid var(--rule);
+    padding: 28px 32px;
+    margin: 32px 0;
+    position: relative;
+  }
+
+  .analogy-label {
+    position: absolute;
+    top: -1px;
+    left: -1px;
+    background: var(--accent-mid);
+    color: white;
+    font-size: 11px;
+    font-weight: 500;
+    padding: 4px 12px;
+    letter-spacing: 0.08em;
+  }
+
+  .analogy h3 {
+    margin-top: 20px;
+    margin-bottom: 10px;
+    font-size: 15px;
+    color: var(--accent);
+  }
+
+  .analogy p { font-size: 15px; margin-bottom: 0; }
+
+  /* Stats */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin: 40px 0;
+  }
+
+  .stat {
+    background: var(--card);
+    border: 1px solid var(--rule);
+    padding: 24px 16px;
+    text-align: center;
+  }
+
+  .stat-number {
+    font-family: 'Noto Serif TC', serif;
+    font-size: 30px;
+    font-weight: 700;
+    color: var(--accent-mid);
+    display: block;
+    margin-bottom: 6px;
+  }
+
+  .stat-label {
+    font-size: 12px;
+    color: var(--ink-muted);
+    line-height: 1.5;
+  }
+
+  /* Before/After */
+  .compare {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 32px 0;
+  }
+
+  .compare-box {
+    padding: 24px;
+    border: 1px solid var(--rule);
+  }
+
+  .compare-box.before { background: var(--card); }
+  .compare-box.after { background: var(--accent-light); border-color: var(--accent-mid); }
+
+  .compare-label {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .compare-box.before .compare-label { color: var(--ink-muted); }
+  .compare-box.after .compare-label { color: var(--accent-mid); }
+
+  .compare-box p { font-size: 14px; margin-bottom: 8px; }
+  .compare-box p:last-child { margin-bottom: 0; }
+
+  /* Lessons */
+  .lessons {
+    background: #1a1a1a;
+    color: white;
+    padding: 40px;
+    margin: 56px 0;
+  }
+
+  .lessons h2 {
+    color: white;
+    border-bottom-color: rgba(255,255,255,0.2);
+    margin-top: 0;
+  }
+
+  .lesson-item {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 28px;
+    align-items: flex-start;
+  }
+
+  .lesson-num {
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    background: var(--accent-mid);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 500;
+    margin-top: 2px;
+  }
+
+  .lesson-text strong { color: white; display: block; margin-bottom: 4px; }
+  .lesson-text p { color: rgba(255,255,255,0.65); font-size: 15px; margin: 0; }
+
+  .divider {
+    text-align: center;
+    margin: 48px 0;
+    color: var(--ink-muted);
+    letter-spacing: 0.3em;
+    font-size: 13px;
+  }
+
+  .article-footer {
+    border-top: 1px solid var(--rule);
+    padding-top: 40px;
+    margin-top: 60px;
+  }
+
+  .article-footer p { font-size: 14px; color: var(--ink-muted); }
+
+  @media (max-width: 600px) {
+    .stats { grid-template-columns: 1fr 1fr; }
+    .compare { grid-template-columns: 1fr; }
+    .hero, article { padding-left: 20px; padding-right: 20px; }
+    .lessons { padding: 28px 24px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="tag">Python · 自動化 · 自學</div>
+  <h1>從 VBA 到全天候自動化系統：一個營運專員的 Python 自學路徑</h1>
+  <p class="subtitle">
+    不是因為想學程式才學程式，是因為工具不夠用才被逼出來的。這是一段從 Excel 書籤到 asyncio 併發排程的真實演進，以及每一步背後的痛點。
+  </p>
+  <div class="meta">
+    <span>Chris Chou</span>
+    <span class="meta-dot">·</span>
+    <span>客服營運流程專員 @ Shopee Taiwan</span>
+    <span class="meta-dot">·</span>
+    <span>約 12 分鐘閱讀</span>
+  </div>
+</div>
+
+<article>
+
+  <h2>一切從一份殘缺的報表開始</h2>
+
+  <p>
+    剛進 Shopee 的時候，我的程式工具箱裡只有一樣東西：<strong>Excel VBA</strong>。對大多數營運分析工作來說，這已經夠用。
+  </p>
+
+  <p>
+    直到第一個分析專案。
+  </p>
+
+  <p>
+    任務是分析某類客服案件的根本原因，找出可以改善的環節。但當我把系統報表匯出來，才發現欄位殘缺——有些關鍵資訊根本不在報表裡，必須進到系統一筆一筆查。幾千筆資料，靠人工查不現實。
+  </p>
+
+  <p>
+    我的第一個念頭是：<em>VBA 可以控制瀏覽器，讓它自動去查。</em>
+  </p>
+
+  <p>
+    這個念頭是對的，但執行起來很痛苦。VBA 操控瀏覽器的方式原始、不穩定，速度慢，而且一旦網頁版面有任何變動，整個腳本就壞掉。跑到一半當掉是常態，不是例外。
+  </p>
+
+  <div class="pullquote">
+    <p>工具不是不能用，但你會花 80% 的時間在跟工具搏鬥，只有 20% 的時間在解決真正的問題。</p>
+  </div>
+
+  <p>就是在這個時候，我開始認真看待 Python。</p>
+
+  <div class="divider">· · ·</div>
+
+  <h2>工具演進的六個階段</h2>
+
+  <div class="evolution">
+
+    <div class="evo-item">
+      <div class="evo-left">
+        <div class="evo-badge">01</div>
+        <div class="evo-line"></div>
+      </div>
+      <div class="evo-content">
+        <div class="evo-tool">Excel VBA</div>
+        <h3>起點：能動，但太脆弱</h3>
+        <p>VBA 控制瀏覽器的方式依賴 COM 介面，速度慢、穩定性差。網頁稍有更新就失效，維護成本極高。它讓我知道「自動化取資料」這件事是可行的，但需要更好的工具。</p>
+      </div>
+    </div>
+
+    <div class="evo-item">
+      <div class="evo-left">
+        <div class="evo-badge">02</div>
+        <div class="evo-line"></div>
+      </div>
+      <div class="evo-content">
+        <div class="evo-tool">Python + Selenium</div>
+        <h3>第一次升級：真正的瀏覽器自動化</h3>
+        <p>
+          Selenium 讓 Python 可以控制 Chrome，模擬真實的使用者操作。但剛開始有兩個大坑：第一是 <strong>WebDriver 設定</strong>，版本對不上、路徑設錯，光是讓瀏覽器能被控制就花了不少時間。第二是 <strong>XPath</strong>——定位網頁元素的語法，寫起來冗長，一個複雜的選擇器可能就是一行很長的字串。
+        </p>
+        <p>解法是把重複用到的操作包成通用函式——點擊、輸入、等待元素出現、錯誤重試——讓後續寫新腳本的速度大幅提升。</p>
+      </div>
+    </div>
+
+    <div class="evo-item">
+      <div class="evo-left">
+        <div class="evo-badge">03</div>
+        <div class="evo-line"></div>
+      </div>
+      <div class="evo-content">
+        <div class="evo-tool">Selenium + BeautifulSoup</div>
+        <h3>過渡階段：繞過渲染，加快速度</h3>
+        <p>
+          Selenium 最大的瓶頸是需要等網頁完整載入，包含所有圖片、CSS、JavaScript 執行完畢，才能取到資料。有時候資料其實已經在 HTML 裡了，但瀏覽器還在渲染其他東西。
+        </p>
+        <p>
+          解法是讓 Selenium 只負責打開特定的 API 網址（通常是回傳 JSON 或 HTML 的端點），再用 <strong>BeautifulSoup</strong> 直接解析回傳的內容。不需要等完整網頁載入，速度快很多，穩定性也更高。
+        </p>
+      </div>
+    </div>
+
+    <div class="evo-item">
+      <div class="evo-left">
+        <div class="evo-badge">04</div>
+        <div class="evo-line"></div>
+      </div>
+      <div class="evo-content">
+        <div class="evo-tool">requests + API</div>
+        <h3>頓悟時刻：跳過瀏覽器，直接取資料</h3>
+        <p>
+          長時間在 Chrome DevTools 的 Network 頁籤裡翻找，慢慢開始看懂系統在每個操作背後實際發出的 API 請求——URL、參數、Header、認證方式。
+        </p>
+        <p>
+          某天突然想到：<em>既然我知道系統在打哪個 API，我為什麼要模擬人的操作？我可以直接打。</em>
+        </p>
+        <p>
+          用 <code style="font-family:'JetBrains Mono',monospace;font-size:14px;background:var(--code-bg);padding:2px 6px;">requests</code> 直接呼叫 API，瀏覽器完全不需要打開。速度從「秒」降到「毫秒」，穩定性大幅提升，程式碼也更簡潔。
+        </p>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="code-block">
+<span class="code-comment"># 舊方式：Selenium 等網頁載入，再抓資料</span>
+driver.get(target_url)
+WebDriverWait(driver, 10).until(EC.presence_of_element_located(...))
+data = driver.find_element(By.XPATH, <span class="code-str">'//div[@class="result"]'</span>).text
+
+<span class="code-comment"># 新方式：直接打 API，跳過瀏覽器</span>
+response = requests.get(
+    api_endpoint,
+    headers={<span class="code-str">'Authorization'</span>: token},
+    params=query_params
+)
+data = response.json()
+  </div>
+
+  <div class="evolution" style="margin-top:40px;">
+
+    <div class="evo-item">
+      <div class="evo-left">
+        <div class="evo-badge">05</div>
+        <div class="evo-line"></div>
+      </div>
+      <div class="evo-content">
+        <div class="evo-tool">asyncio 併發</div>
+        <h3>速度瓶頸：一萬筆資料，跑一天</h3>
+        <p>
+          即使用了 requests，面對大量資料時還是遇到瓶頸。分析用的資料動輒數萬筆，若一筆一筆依序處理，假設每次 API 呼叫需要 1 秒，一萬筆就是將近 3 小時。中途網路抖一下、token 過期、任何小問題都會讓整個流程中斷，必須從頭重跑。
+        </p>
+
+        <div class="analogy">
+          <div class="analogy-label">非技術讀者版</div>
+          <h3>threading vs asyncio 的差別</h3>
+          <p><strong>threading</strong> 像是開很多個收銀台，每個台各自服務一位客人，同時進行。<br><br><strong>asyncio</strong> 像是一個收銀員，在等客人刷卡的空檔，先去幫下一位客人掃條碼。沒有開更多收銀台，但把等待的時間利用起來了。</p>
+          <p style="margin-top:12px;">API 請求大部分的時間都在「等伺服器回應」，這正是 asyncio 最有效率的場景——在等 A 回應的時候，同時發出 B、C、D 的請求。</p>
+        </div>
+
+        <p>
+          改用 asyncio 之後，同樣的一萬筆資料，時間從數小時壓縮到幾分鐘。更重要的是，流程穩定了——不再因為跑太久而中途斷掉。
+        </p>
+      </div>
+    </div>
+
+    <div class="evo-item">
+      <div class="evo-left">
+        <div class="evo-badge">06</div>
+        <div class="evo-line"></div>
+      </div>
+      <div class="evo-content">
+        <div class="evo-tool">排程 + 全天候運行</div>
+        <h3>從工具到系統：讓它自己跑</h3>
+        <p>
+          單次執行的腳本，還是需要人去觸發。加入排程之後，資料更新、報表產出、異常通知，全部變成自動發生的事。每天早上打開電腦，昨天的數據已經在那裡了。
+        </p>
+        <p>
+          這個轉變讓「自動化」從「省去重複操作」升級成「讓系統替你持續工作」。人的注意力可以放在判斷和決策，而不是等資料跑出來。
+        </p>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="divider">· · ·</div>
+
+  <h2>Before & After：數字說話</h2>
+
+  <div class="compare">
+    <div class="compare-box before">
+      <div class="compare-label">之前</div>
+      <p>每日手動更新報表</p>
+      <p>每份報表 10–15 分鐘</p>
+      <p>多份報表串接需人工等待</p>
+      <p>萬筆資料分析需 1–2 天</p>
+      <p>中斷就要從頭重跑</p>
+    </div>
+    <div class="compare-box after">
+      <div class="compare-label">之後</div>
+      <p>每日自動執行 20–30 項任務</p>
+      <p>排程全天候運行，無需人工觸發</p>
+      <p>asyncio 併發，萬筆壓縮至分鐘級</p>
+      <p>中斷恢復機制，不需從頭重跑</p>
+      <p><strong>每月節省約 5.6 人天</strong></p>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat">
+      <span class="stat-number">20–30</span>
+      <span class="stat-label">每日自動執行<br>任務數量</span>
+    </div>
+    <div class="stat">
+      <span class="stat-number">5.6</span>
+      <span class="stat-label">每月節省<br>人天數</span>
+    </div>
+    <div class="stat">
+      <span class="stat-number">分鐘</span>
+      <span class="stat-label">萬筆資料處理時間<br>（原需數小時）</span>
+    </div>
+  </div>
+
+  <div class="divider">· · ·</div>
+
+  <div class="lessons">
+    <h2>這段路教會我的四件事</h2>
+
+    <div class="lesson-item">
+      <div class="lesson-num">1</div>
+      <div class="lesson-text">
+        <strong>最好的學習動機是真實的痛苦</strong>
+        <p>我不是因為「Python 很有用」才去學，是因為 VBA 讓我每天在跟工具搏鬥才去學。帶著真實問題去學，每一個新概念都有立即可以驗證的場景，學得快，也記得住。</p>
+      </div>
+    </div>
+
+    <div class="lesson-item">
+      <div class="lesson-num">2</div>
+      <div class="lesson-text">
+        <strong>工具的演進不是跳躍，是逼出來的</strong>
+        <p>VBA → Selenium → BeautifulSoup → requests → asyncio，每一步都是因為前一個工具碰到了它解決不了的問題。不需要一開始就學最好的工具，需要的是在遇到瓶頸時知道往哪裡找答案。</p>
+      </div>
+    </div>
+
+    <div class="lesson-item">
+      <div class="lesson-num">3</div>
+      <div class="lesson-text">
+        <strong>DevTools 是最被低估的學習工具</strong>
+        <p>花時間看 Network 頁籤，理解系統在背後做什麼，是從「模擬操作」跳到「直接打 API」的關鍵。這個習慣讓我對系統的理解從「介面層」深入到「資料層」，思考問題的方式也跟著改變。</p>
+      </div>
+    </div>
+
+    <div class="lesson-item">
+      <div class="lesson-num">4</div>
+      <div class="lesson-text">
+        <strong>把重複的東西包成函式，是從「寫程式」到「工程思維」的分水嶺</strong>
+        <p>Selenium 階段把 XPath 操作包成通用函式，不只是讓程式碼更短，而是開始用「可重用、可維護」的角度思考問題。這個習慣後來在每個專案都省了大量時間。</p>
+      </div>
+    </div>
+
+  </div>
+
+  <h2>從函式到類別：建立自己的工具庫</h2>
+
+  <p>函式解決的是單一操作的重用，但當專案越來越多、需求越來越複雜，你會發現需要的不只是函式，而是一套<strong>可以組合、可以擴展的架構</strong>。</p>
+
+  <p>這個階段我開始把相關的函式整理成類別。最核心的是 <strong>DMS API 類</strong>，把所有跟系統溝通的細節封裝起來：登入流程、Session 保存與刷新、API 呼叫格式、asyncio 併發控制。另外還有各種<strong>報表生成類</strong>，把不同格式的輸出邏輯統一管理。</p>
+
+  <div class="code-block">
+<span class="code-comment"># 有了類別之後，新需求的程式碼變成這樣</span>
+dms = <span class="code-key">DMSClient</span>()
+<span class="code-key">await</span> dms.login()
+
+<span class="code-comment"># 併發取得一萬筆案件資料</span>
+data = <span class="code-key">await</span> dms.fetch_batch(case_ids, concurrency=<span class="code-str">20</span>)
+
+<span class="code-comment"># 直接生成報表</span>
+report = <span class="code-key">ReportBuilder</span>(data)
+report.export_excel(<span class="code-str">"output.xlsx"</span>)
+  </div>
+
+  <p>幾行就解決，因為複雜的部分已經在類別裡了。登入怎麼處理、token 過期怎麼刷新、併發數量怎麼控制——這些細節只需要解決一次，之後每個新需求都站在這個基礎上。</p>
+
+  <div class="pullquote">
+    <p>工具庫是會複利的東西。每解決一個新問題，下一個問題就更快解決。時間久了，你的起點比別人高很多。</p>
+  </div>
+
+  <p>這套架構現在支撐著每日 20–30 項自動化任務，涵蓋數據更新、報表生成、異常通知等各種應用場景。面對新需求時，大部分的時間花在「想清楚要做什麼」，而不是「從零開始寫基礎設施」。</p>
+
+  <h2>給同樣在這條路上的人</h2>
+
+  <p>
+    如果你現在正在用 Excel 做一些感覺「應該可以自動化」的事，或是已經在學 Python 但不知道從哪裡找真實的應用場景——我的建議是：<strong>從你現在最痛的那個重複動作開始。</strong>
+  </p>
+
+  <p>
+    不需要學完所有東西再動手。帶著問題去找答案，比照著課程學完再找問題，有效很多。工具會在你需要它的時候出現，就像 asyncio 在我為萬筆資料發愁的時候出現一樣。
+  </p>
+
+  <div class="article-footer">
+    <p>
+      這篇是我自動化學習路徑的整理，如果你也在用 Python 解決工作問題，或是有類似的演進過程，歡迎留言分享。另外一篇關於如何用 Chrome Extension 解決客服系統痛點的文章也可以參考。
+    </p>
+  </div>
+
+</article>
+
+</body>
+</html>
